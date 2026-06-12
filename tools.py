@@ -52,12 +52,33 @@ def lookup_plant(plant_name: str) -> dict:
 
     Before writing code, complete the lookup_plant section of specs/tool-functions-spec.md.
     """
+    # Normalize input
+    query = plant_name.strip().lower()
+
+    # 1. Direct key match (e.g. "pothos", "snake_plant")
+    if query in _plant_db:
+        return {"found": True, "plant": _plant_db[query]}
+
+    # 2. Display name match (e.g. "Pothos")
+    for key, plant in _plant_db.items():
+        if plant.get("display_name", "").lower() == query:
+            return {"found": True, "plant": plant}
+
+    # 3. Alias match (e.g. "devil's ivy")
+    for key, plant in _plant_db.items():
+        if query in [alias.lower() for alias in plant.get("aliases", [])]:
+            return {"found": True, "plant": plant}
+
+    # Not found
     return {
         "found": False,
         "name": plant_name,
-        "message": "Plant lookup not yet implemented. Complete Milestone 1.",
+        "message": (
+            f"No plant matching '{plant_name}' was found in the database. "
+            "You can offer general houseplant care advice based on what the user "
+            "describes, but do not invent specific care data for this plant."
+        ),
     }
-
 
 def get_seasonal_conditions(season: str | None = None) -> dict:
     """
